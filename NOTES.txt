@@ -1,0 +1,7 @@
+
+# Minimum for EVAL
+$retval = $lang.run('native code');
+
+# Module / Static methods
+$retval = $lang.invoke('Module', 'method');
+

@@ -1,14 +1,10 @@
 #!/usr/bin/env perl6
 
 use v6;
-use Inline::Python;
+use Inline::Ruby;
 
 say '1..1';
 
-my $py = Inline::Python.new();
+EVAL '$stdout.sync = true', :lang<Ruby>;
+EVAL 'print "ok 1 - basic eval\n"', :lang<Ruby>;
 
-$py.run('
-print "ok 1 - basic eval\n";
-', :file);
-
-# vim: ft=perl6

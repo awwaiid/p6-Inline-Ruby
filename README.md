@@ -13,6 +13,12 @@ Inline::Ruby
 
 Module for executing Ruby code and accessing Ruby libraries from Perl 6.
 
+# STATUS
+
+* This only barely works!
+* You can currently EVAL code
+* That's it! Can't even use the result
+
 # AUTHOR
 
 Brock Wilcox <awwaiid@thelackthereof.org>

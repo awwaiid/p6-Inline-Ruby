@@ -12,10 +12,10 @@ class Build is Panda::Builder {
         # shell('perl -MFilter::Simple -e ""')
         #     or die "\nPlease install the Filter::Simple Perl 5 module!\n";
 
-        my %vars = get-vars('.');
+        my %vars = get-vars($dir);
         %vars<rbhelper> = $*VM.platform-library-name('rbhelper'.IO);
-        mkdir "resources" unless "resources".IO.e;
-        mkdir "resources/libraries" unless "resources/libraries".IO.e;
+        mkdir "$dir/resources" unless "$dir/resources".IO.e;
+        mkdir "$dir/resources/libraries" unless "$dir/resources/libraries".IO.e;
         process-makefile($dir, %vars);
         my $goback = $*CWD;
         chdir($dir);

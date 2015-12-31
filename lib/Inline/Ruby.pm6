@@ -6,7 +6,8 @@ my $default_instance;
 use NativeCall;
 # constant RUBY = 'ruby-2.1';
 # constant RUBY = 'ruby';
-constant RUBY = './resources/libraries/librbhelper.so';
+# constant RUBY = './resources/libraries/librbhelper.so';
+constant RUBY = %?RESOURCES<libraries/rbhelper>.Str;
 # sub native(Sub $sub) {
 #     my Str $path = %?RESOURCES<libraries/p5helper>.Str;
 #     unless $path {

@@ -1,11 +1,12 @@
 {
     "name" : "Inline::Ruby",
-    "version" : "0.0.2",
+    "version" : "0.0.3",
     "author" : "github:awwaiid",
     "description" : "Use Ruby code and libraries in a Perl 6 program",
     "depends" : [ "LibraryMake" ],
     "provides" : {
         "Inline::Ruby" : "lib/Inline/Ruby.pm6"
     },
+    "resources"      : [ "libraries/rbhelper" ],
     "source-url" : "git://github.com/awwaiid/p6-Inline-Ruby.git"
 }

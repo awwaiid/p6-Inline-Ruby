@@ -1,0 +1,8 @@
+.PHONY: clean test
+all: %DESTDIR%/resources/libraries/%rbhelper%
+clean:
+	rm %DESTDIR%/resources/libraries/%rbhelper%
+%DESTDIR%/resources/libraries/%rbhelper%: rbhelper.c
+	gcc -Wall rbhelper.c `pkg-config --libs ruby-2.1` `pkg-config --cflags ruby-2.1` -shared -o %DESTDIR%/resources/libraries/%rbhelper% -fPIC -g
+test: all
+	prove -e 'perl6 -Ilib' t

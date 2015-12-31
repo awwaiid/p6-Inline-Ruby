@@ -17,7 +17,13 @@ Module for executing Ruby code and accessing Ruby libraries from Perl 6.
 
 * This only barely works!
 * You can currently EVAL code
-* That's it! Can't even use the result
+* Some return types converted to Perl 6 values:
+  * TRUE
+  * FALSE
+  * NIL
+  * FIXNUM
+  * STRING
+  * FLOAT
 
 # AUTHOR
 

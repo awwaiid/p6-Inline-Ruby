@@ -16,3 +16,10 @@ double rb_to_p6_dbl(VALUE obj) {
   return NUM2DBL(obj);
 }
 
+int p6_to_rb_int(int n) {
+  return INT2FIX(n);
+}
+
+int p6_to_rb_str(char* s) {
+  return rb_str_new2(s);
+}

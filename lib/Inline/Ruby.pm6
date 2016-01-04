@@ -1,173 +1,54 @@
 
 unit class Inline::Ruby;
 
+=NAME Inline::Ruby - Execute Ruby code and libraries from Perl 6 programs
+
+=begin SYNOPSIS
+  use Inline::Ruby;
+
+  EVAL 'puts "Hello!"', :lang<Ruby>;
+
+  # EVAL is pretty verbose, let's make a shorthand
+  sub postfix:<:rb>($code) {
+    use MONKEY-SEE-NO-EVAL;
+    EVAL $code, :lang<Ruby>;
+  }
+
+  # Method calling, some simple params
+  say 'Time':rb.now.to_s;
+  say '[2, 6, 8, 4]':rb.sort.slice(1,2).to_s;
+=end SYNOPSIS
+
+=begin DESCRIPTION
+  Module for executing Ruby code and accessing Ruby libraries from Perl 6.
+
+  Simple types, such as numbers and strings, are automatically converted. For
+  more complex types, such as arrays, mostly they are kept in their original
+  language and converted either explicitly or as necessary.
+=end DESCRIPTION
+
 my $default_instance;
 
 use NativeCall;
 constant RUBY = %?RESOURCES<libraries/rbhelper>.Str;
 
-class RbObject { ... }
+our $wrap_in_rbobject = -> $val {
+  ::('Inline::Ruby::RbObject').new( value => $val );
+  # ::('Inline::Ruby')::RbObject.new( value => $val );
+};
 
-class RbValue is repr('CPointer') {
+our $fishies = 7;
 
-  enum ruby_value_type (
-    RUBY_T_NONE     => 0x00,
-
-    RUBY_T_OBJECT   => 0x01,
-    RUBY_T_CLASS    => 0x02,
-    RUBY_T_MODULE   => 0x03,
-    RUBY_T_FLOAT    => 0x04,
-    RUBY_T_STRING   => 0x05,
-    RUBY_T_REGEXP   => 0x06,
-    RUBY_T_ARRAY    => 0x07,
-    RUBY_T_HASH     => 0x08,
-    RUBY_T_STRUCT   => 0x09,
-    RUBY_T_BIGNUM   => 0x0a,
-    RUBY_T_FILE     => 0x0b,
-    RUBY_T_DATA     => 0x0c,
-    RUBY_T_MATCH    => 0x0d,
-    RUBY_T_COMPLEX  => 0x0e,
-    RUBY_T_RATIONAL => 0x0f,
-
-    RUBY_T_NIL      => 0x11,
-    RUBY_T_TRUE     => 0x12,
-    RUBY_T_FALSE    => 0x13,
-    RUBY_T_SYMBOL   => 0x14,
-    RUBY_T_FIXNUM   => 0x15,
-
-    RUBY_T_UNDEF    => 0x1b,
-    RUBY_T_NODE     => 0x1c,
-    RUBY_T_ICLASS   => 0x1d,
-    RUBY_T_ZOMBIE   => 0x1e,
-
-    RUBY_T_MASK     => 0x1f
-  );
-
-
-  # Here are the actual NativeCall functions.
-  sub p6_rb_type      (RbValue $value) returns int   is native(RUBY) { * }
-  sub rb_to_p6_fixnum (RbValue $value) returns int   is native(RUBY) { * }
-  sub rb_to_p6_string (RbValue $value) returns Str   is native(RUBY) { * }
-  sub rb_to_p6_dbl    (RbValue $value) returns num64 is native(RUBY) { * }
-
-  multi method to_p6() {
-    my $type = p6_rb_type(self);
-    # say "Converting $type to p6";
-    self.to_p6($type);
-  }
-
-  multi method to_p6($type where RUBY_T_FIXNUM) {
-    rb_to_p6_fixnum(self);
-  }
-
-  multi method to_p6($type where RUBY_T_TRUE) {
-    True;
-  }
-
-  multi method to_p6($type where RUBY_T_FALSE) {
-    False;
-  }
-
-  multi method to_p6($type where RUBY_T_NIL) {
-    Any;
-  }
-
-  multi method to_p6($type where RUBY_T_STRING) {
-    rb_to_p6_string(self);
-  }
-
-  multi method to_p6($type where RUBY_T_FLOAT) {
-    rb_to_p6_dbl(self);
-  }
-
-  multi method to_p6($type) {
-    # say "Wrapping $type in RbObject";
-    RbObject.new(value => self);
-    # die "Type $type not defined";
-  }
-
-  sub p6_to_rb_int (int32 $n) returns RbValue is native(RUBY) { * }
-  sub p6_to_rb_str (Str $s)   returns RbValue is native(RUBY) { * }
-
-  multi method from(Int $n) {
-    p6_to_rb_int($n);
-  }
-
-  multi method from(Str $v) {
-    p6_to_rb_str($v);
-  }
-
-}
+use Inline::Ruby::RbValue;
+use Inline::Ruby::RbObject;
 
 # Native functions
 
-sub ruby_init()
-    is native(RUBY) { * }
-
-sub ruby_init_loadpath()
-    is native(RUBY) { * }
-
-sub ruby_exec_node(Pointer $node)
-    is native(RUBY) { * }
-
-sub ruby_options(int32 $argc, CArray[Str] $argv)
-    returns Pointer
-    is native(RUBY) { * }
+sub ruby_init() is native(RUBY) { * }
 
 sub rb_eval_string_protect(Str $code, int32 $state is rw)
-    returns RbValue
+    returns Inline::Ruby::RbValue
     is native(RUBY) { * }
-
-sub rb_funcall(RbValue $obj, RbValue $symbol)
-    returns RbValue
-    is native(RUBY) { * }
-
-sub rb_funcallv(
-      RbValue $obj,
-      RbValue $symbol,
-      int32 $argc,
-      CArray[RbValue] $argv)
-    returns RbValue
-    is native(RUBY) { * }
-
-sub rb_gv_get(Str $var)
-    returns RbValue
-    is native(RUBY) { * }
-
-# string -> symbol
-sub rb_intern(Str $val)
-    returns RbValue
-    is native(RUBY) { * }
-
-sub to_ruby(Int $n) {
-}
-
-class RbObject {
-  has RbValue $.value;
-
-  method sort(*@x) {
-    self.FALLBACK("sort", |@x);
-  }
-  method first(*@x) {
-    self.FALLBACK("first", |@x);
-  }
-  method push(*@x) {
-    self.FALLBACK("push", |@x);
-  }
-
-  method FALLBACK($name, *@x) {
-    # say "Calling $name";
-    my $argc = @x.elems;
-    my $argv = CArray[RbValue].new;
-    $argv[$_] = RbValue.from(@x[$_]) for ^@x.elems;
-    rb_funcallv($.value, rb_intern($name), $argc, $argv).to_p6;
-  }
-
-  method from($v) {
-    RbObject.new( value => RbValue.from($v) );
-  }
-}
-
 
 method BUILD() {
   $default_instance //= self;
@@ -211,7 +92,8 @@ multi sub EVAL(
   PseudoStash :$context
 ) is export {
   state $rb //= Inline::Ruby.default_instance;
-  my $result = $rb.run($code);
-  $result.to_p6;
+  $rb.run($code).to_p6;
 }
+
+=AUTHOR Brock Wilcox <awwaiid@thelackthereof.org>
 

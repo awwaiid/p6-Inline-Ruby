@@ -4,39 +4,54 @@ use v6;
 use Test;
 use Inline::Ruby;
 
-sub circumfix:<RB[ ]>($code) {
+
+sub postfix:<:rb>($code) {
   use MONKEY-SEE-NO-EVAL;
   EVAL $code, :lang<Ruby>;
 }
 
 subtest {
-  isa-ok RB['true'], True;
-  isa-ok RB['false'], False;
-  isa-ok RB['5'], Int;
-  isa-ok RB['1.0'], Num;
-  isa-ok RB['"foo"'], Str;
+  isa-ok 'true':rb, True;
+  isa-ok 'false':rb, False;
+  isa-ok '5':rb, Int;
+  isa-ok '1.0':rb, Num;
+  isa-ok '"foo"':rb, Str;
 }, 'Ruby to Perl6 types';
 
-is RB['7 * 6'], 42, 'Basic math';
+is '7 * 6':rb, 42, 'Basic math';
 
-is RB['1.0 / 3'], (1e0/3), 'Float math';
+is '1.0 / 3':rb, (1e0/3), 'Float math';
 
-is RB['Time'].now.class.to_s, 'Time', 'Call methods';
+isa-ok 'Time':rb, Inline::Ruby::RbObject, 'Classes wrapped as RbObject';
 
-is RB['[2, 6, 8, 4]'].sort.to_s,
+is 'Time':rb.now.class.to_s, 'Time', 'Call methods';
+
+is '[2, 6, 8, 4]':rb.sort.to_s,
    "[2, 4, 6, 8]",
    'Can call sort and to_s on Array';
 
-is RB['[2, 4, 6, 8]'].at(1),
+is '[2, 4, 6, 8]':rb.at(1),
    4,
    'Can call parameter methods on Array';
 
-is RB['[2, 4, 6, 8]'].slice(1, 2).to_s,
+is '[2, 4, 6, 8]':rb.slice(1, 2).to_s,
    '[4, 6]',
    'Can call 2-parameter methods on Array';
 
-is RB['[2, 4, 6, 8]'].push(1).to_s,
+is '[2, 4, 6, 8]':rb.push(1).to_s,
    "[2, 4, 6, 8, 1]",
+   'Can modify an Array';
+
+is '[2, 4, 6, 8]':rb.join,
+   "2468",
+   'Can join an Array';
+
+is '[2, 4, 6, 8]':rb.join(","),
+   "2,4,6,8",
+   'Can join an Array with comma';
+
+is '[2, 4, 6, 8]':rb.push([:foo]).to_s,
+   "[2, 4, 6, 8, :foo]",
    'Can modify an Array';
 
 done-testing;

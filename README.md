@@ -10,14 +10,14 @@ Inline::Ruby
     EVAL 'puts "Hello!"', :lang<Ruby>;
 
     # EVAL is pretty verbose, let's make a shorthand
-    sub circumfix:<RB[ ]>($code) {
+    sub postfix:<:rb>($code) {
       use MONKEY-SEE-NO-EVAL;
       EVAL $code, :lang<Ruby>;
     }
 
     # Method calling, some simple params
-    say RB['Time'].now.to_s;
-    say RB['[2, 6, 8, 4]'.sort.slice(1,2).to_s;
+    say 'Time':rb.now.to_s;
+    say '[2, 6, 8, 4]':rb.sort.slice(1,2).to_s;
 ```
 
 # DESCRIPTION
@@ -52,6 +52,7 @@ I'm running Debian unstable with ruby2.2-dev. Then:
 * You can call basic methods!
 * Some param types converted to Ruby values:
   * Int
+  * Str
 
 # NOTES - Brainstorming and such.
 

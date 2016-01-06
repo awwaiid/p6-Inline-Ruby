@@ -50,6 +50,13 @@ sub rb_eval_string_protect(Str $code, int32 $state is rw)
     returns Inline::Ruby::RbValue
     is native(RUBY) { * }
 
+sub ruby_exec_node(Pointer $node)
+    is native(RUBY) { * }
+
+sub ruby_options(int32 $argc, CArray[Str] $argv)
+    returns Pointer
+    is native(RUBY) { * }
+
 method BUILD() {
   $default_instance //= self;
   ruby_init();
@@ -61,11 +68,11 @@ method BUILD() {
 
   # Setting options to -enil lets us start ruby
   # without complaint about not having some stuff.
-  # my $opts = CArray[Str].new;
-  # $opts[0] = "";
-  # $opts[1] = "-enil";
-  # my $options = ruby_options(2, $opts);
-  # ruby_exec_node($options);
+  my $opts = CArray[Str].new;
+  $opts[0] = "";
+  $opts[1] = "-enil";
+  my $options = ruby_options(2, $opts);
+  ruby_exec_node($options);
 
 }
 

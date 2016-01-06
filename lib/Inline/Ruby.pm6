@@ -85,14 +85,13 @@ method run($str) {
   $result;
 }
 
-
 multi sub EVAL(
   Cool $code,
   Str :$lang where { ($lang // '') eq 'Ruby' },
   PseudoStash :$context
 ) is export {
   state $rb //= Inline::Ruby.default_instance;
-  $rb.run($code).to_p6;
+  Inline::Ruby::RbObject.from( $rb.run($code) );
 }
 
 =AUTHOR Brock Wilcox <awwaiid@thelackthereof.org>

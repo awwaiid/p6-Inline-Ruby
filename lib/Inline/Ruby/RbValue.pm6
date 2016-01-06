@@ -38,67 +38,10 @@ class Inline::Ruby::RbValue is repr('CPointer') {
     RUBY_T_MASK     => 0x1f
   );
 
-
-  # NativeCall routines for rb->p6 conversions
-  sub p6_rb_type      (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
-  sub rb_to_p6_fixnum (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
-  sub rb_to_p6_string (Inline::Ruby::RbValue $value) returns Str   is native(RUBY) { * }
-  sub rb_to_p6_dbl    (Inline::Ruby::RbValue $value) returns num64 is native(RUBY) { * }
-
-  multi method to_p6() {
-    my $type = p6_rb_type(self);
-    # say "Converting $type to p6";
-    self.to_p6($type);
-  }
-
-  multi method to_p6($type where RUBY_T_FIXNUM) {
-    rb_to_p6_fixnum(self);
-  }
-
-  multi method to_p6($type where RUBY_T_TRUE) {
-    True;
-  }
-
-  multi method to_p6($type where RUBY_T_FALSE) {
-    False;
-  }
-
-  multi method to_p6($type where RUBY_T_NIL) {
-    Any;
-  }
-
-  multi method to_p6($type where RUBY_T_STRING) {
-    rb_to_p6_string(self);
-  }
-
-  multi method to_p6($type where RUBY_T_FLOAT) {
-    rb_to_p6_dbl(self);
-  }
-
-  multi method to_p6($type) {
-    ::('Inline::Ruby::RbObject').new(value => self);
-  }
-
-  # NativeCall routines for P6->RB conversions
-  sub p6_to_rb_int (int32 $n) returns Inline::Ruby::RbValue is native(RUBY) { * }
-  sub p6_to_rb_str (Str $s)   returns Inline::Ruby::RbValue is native(RUBY) { * }
   # string -> symbol
   sub rb_intern(Str $val)
       returns Inline::Ruby::RbValue
       is native(RUBY) { * }
-
-  # Ruby values don't need to be converted
-  multi method from(Inline::Ruby::RbValue $rb_value) {
-    $rb_value;
-  }
-
-  multi method from(Int $n) {
-    p6_to_rb_int($n);
-  }
-
-  multi method from(Str $v) {
-    p6_to_rb_str($v);
-  }
 
   sub rb_funcall(
         Inline::Ruby::RbValue $obj,
@@ -107,18 +50,101 @@ class Inline::Ruby::RbValue is repr('CPointer') {
       returns Inline::Ruby::RbValue
       is native(RUBY) { * }
 
-  # string -> symbol
-  # sub rb_intern(Str $val)
-  #     returns Inline::Ruby::RbValue
-  #     is native(RUBY) { * }
+
+  # NativeCall routines for rb->p6 conversions
+  sub p6_rb_type      (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
+  sub rb_to_p6_fixnum (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
+  sub rb_to_p6_string (Inline::Ruby::RbValue $value) returns Str   is native(RUBY) { * }
+  sub rb_to_p6_dbl    (Inline::Ruby::RbValue $value) returns num64 is native(RUBY) { * }
+
+  # method to_p6() {
+  #   ::('Inline::Ruby::RbObject').new(value => self);
+  # }
+
+  # multi method to_p6($type where RUBY_T_FIXNUM) {
+  #   rb_to_p6_fixnum(self);
+  # }
+
+  # multi method to_p6($type where RUBY_T_TRUE) {
+  #   True;
+  # }
+
+  # multi method to_p6($type where RUBY_T_FALSE) {
+  #   False;
+  # }
+
+  # multi method to_p6($type where RUBY_T_NIL) {
+  #   Any;
+  # }
+
+  # multi method to_p6($type where RUBY_T_STRING) {
+  #   rb_to_p6_string(self);
+  # }
+
+  # multi method to_p6($type where RUBY_T_FLOAT) {
+  #   rb_to_p6_dbl(self);
+  # }
+  #
+  # multi method to_p6($type where RUBY_T_STRING) {
+  #   rb_to_p6_string(self);
+  # }
+
+  method Str() {
+    if p6_rb_type(self) ~~ RUBY_T_STRING {
+      rb_to_p6_string(self);
+    } else {
+      rb_to_p6_string( rb_funcall(self, rb_intern("to_s"), 0) );
+    }
+  }
+
+  method Numeric() {
+    given p6_rb_type(self) {
+      when RUBY_T_STRING { rb_to_p6_string(self).Numeric() }
+      when RUBY_T_FIXNUM { rb_to_p6_fixnum(self) }
+      when RUBY_T_FLOAT  { rb_to_p6_dbl(self) }
+      default { warn "Cannot convert to Numeric"; 0 }
+    }
+  }
+
+  method Bool() {
+    given p6_rb_type(self) {
+      when RUBY_T_NIL   { False }
+      when RUBY_T_FALSE { False }
+      when RUBY_T_TRUE  { True }
+      default { True }
+    }
+  }
+
+
+  # multi method to_p6($type) {
+  #   ::('Inline::Ruby::RbObject').new(value => self);
+  # }
+
+  # NativeCall routines for P6->RB conversions
+  sub p6_to_rb_int (int32 $n) returns Inline::Ruby::RbValue is native(RUBY) { * }
+  sub p6_to_rb_str (Str $s)   returns Inline::Ruby::RbValue is native(RUBY) { * }
+
+
+  # Ruby values don't need to be converted
+  multi method from(Inline::Ruby::RbValue $rb_value) {
+    # say "from rbVal";
+    $rb_value;
+  }
+
+  multi method from(Int $n) {
+    # say "from int";
+    p6_to_rb_int($n);
+  }
+
+  multi method from(Str $v) {
+    # say "from str";
+    p6_to_rb_str($v);
+  }
+
 
   multi method from(Pair $v where $v.value === True) {
-  # multi method from(Pair $v) {
-    # say "Converting $v -> symbol";
     my $rb_str = Inline::Ruby::RbValue.from($v.key);
-    my $r = rb_funcall($rb_str, rb_intern("to_sym"), 0);
-    # say "Got back";
-    $r;
+    rb_funcall($rb_str, rb_intern("to_sym"), 0);
   }
 
   multi method from($v) {

@@ -7,9 +7,10 @@ clean:
 
 %DESTDIR%/resources/libraries/%rbhelper%: rbhelper.c
 	# This will use pkg-config to try finding ruby
-	# looks for 2.2, 2.1, 2.0
+	# looks for 2.3, 2.2, 2.1, 2.0
 	gcc -Wall rbhelper.c \
-	  `pkg-config --libs --cflags ruby-2.2 2>/dev/null \
+	  `pkg-config --libs --cflags ruby-2.3 2>/dev/null \
+	  || pkg-config --libs --cflags ruby-2.2 2>/dev/null \
 	  || pkg-config --libs --cflags ruby-2.1 2>/dev/null \
 	  || pkg-config --libs --cflags ruby-2.0 2>/dev/null \
 	  || pkg-config --libs --cflags ruby-1.9` \

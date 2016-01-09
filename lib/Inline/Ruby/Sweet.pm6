@@ -32,6 +32,11 @@ multi sub postcircumfix:<[ ]>(Inline::Ruby::RbObject $left-obj, Any $right-obj) 
   $left-obj."[]"($right-obj);
 }
 
+# Ruby doesn't really differentiate between [] and {}
+multi sub postcircumfix:<{ }>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."[]"($right-obj);
+}
+
 use MONKEY-TYPING;
 augment class Inline::Ruby::RbObject {
   method gist() {

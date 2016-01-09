@@ -65,7 +65,8 @@ exceptions :)
     # Add :rb postfix to eval a string
     # In a string context, .to_s is called in ruby
     # In perl6, .gist is called during printing, which wraps native-ruby values
-    # in «...»:rb
+    # in «...»:rb. So when you see that, you know you are looking at a wrapped
+    # native Ruby object
 
     say '5':rb;      #=> «5»:rb
 
@@ -92,10 +93,11 @@ exceptions :)
 
     # Now $data contains a ruby Array with nested hashes, wrapped in a P6 proxy
     # object. You can call methods and some operators, such as []. Note that ruby
-    # uses [] and not {} for hash access!
+    # uses [] and not {} for hash access! But we alias {} so you can still use it.
 
     say $data.length       #=> «2»:rb
     say $data[0]["type"]   #=> «ClutterGroup»:rb
+    say $data[0]<type>     #=> «ClutterGroup»:rb
 
     # The value there is still a RbObject (proxy object). You can force Str or
     # Num context
@@ -106,6 +108,10 @@ exceptions :)
 
 # NOTES - Brainstorming and such.
 
+* A big trick is deciding when and how much to auto-convert between langs
+  * It's nice to leave things in Ruby if they start there, so we don't have to copy it all over
+  * Final values are nice to have as native Perl 6
+  * Maybe we should only explicit-convert
 * Mmm... maybe there should be two layers of .to_p6
   * One would do simple types -- strings, numbers
   * Second would do complex types -- Array, Hash
@@ -115,7 +121,7 @@ exceptions :)
 
 Imagine this:
 
-    use CSV:from<Ruby>;
+    use csv:from<Ruby>;
 
     CSV.foreach: 'customers.csv', -> $row {
       say $row[2];

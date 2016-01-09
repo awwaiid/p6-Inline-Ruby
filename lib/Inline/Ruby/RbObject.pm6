@@ -20,6 +20,8 @@ class Inline::Ruby::RbObject {
   method Str()     { $.value.Str() }
   method Numeric() { $.value.Numeric() }
   method Bool()    { $.value.Bool() }
+  method List()    { $.value.List() }
+  method Array()   { $.value.Array() }
 
   sub rb_funcallv(
         Inline::Ruby::RbValue $obj,
@@ -55,5 +57,6 @@ class Inline::Ruby::RbObject {
   method from($p6_value) {
     Inline::Ruby::RbObject.new( value => Inline::Ruby::RbValue.from($p6_value) );
   }
+
 }
 

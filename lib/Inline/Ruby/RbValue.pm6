@@ -57,8 +57,16 @@ class Inline::Ruby::RbValue is repr('CPointer') {
   sub rb_to_p6_string (Inline::Ruby::RbValue $value) returns Str   is native(RUBY) { * }
   sub rb_to_p6_dbl    (Inline::Ruby::RbValue $value) returns num64 is native(RUBY) { * }
 
+  # Array helpers
+  sub p6_rb_array_length (Inline::Ruby::RbValue $value)
+      returns int
+      is native(RUBY) { * }
+  sub rb_ary_entry       (Inline::Ruby::RbValue $value, int $offset)
+      returns Inline::Ruby::RbValue
+      is native(RUBY) { * }
+
   # method to_p6() {
-  #   ::('Inline::Ruby::RbObject').new(value => self);
+  #  self.to_p6(p6_rb_type(self))
   # }
 
   # multi method to_p6($type where RUBY_T_FIXNUM) {
@@ -88,6 +96,11 @@ class Inline::Ruby::RbValue is repr('CPointer') {
   # multi method to_p6($type where RUBY_T_STRING) {
   #   rb_to_p6_string(self);
   # }
+  #
+  # multi method to_p6($type) {
+  #   ::('Inline::Ruby::RbObject').new(value => self);
+  # }
+
 
   method Str() {
     if p6_rb_type(self) ~~ RUBY_T_STRING {
@@ -115,10 +128,20 @@ class Inline::Ruby::RbValue is repr('CPointer') {
     }
   }
 
-
-  # multi method to_p6($type) {
-  #   ::('Inline::Ruby::RbObject').new(value => self);
-  # }
+  method List() {
+    given p6_rb_type(self) {
+      when RUBY_T_ARRAY {
+        my $len = p6_rb_array_length(self);
+        my @p6_array = [];
+        for ^$len -> $offset {
+          # @p6_array[$offset] = rb_ary_entry(self, $offset);
+          @p6_array[$offset] = ::('Inline::Ruby::RbObject').new(value => rb_ary_entry(self, $offset));
+        }
+        @p6_array;
+      }
+      default { warn "Cannot convert to List" }
+    }
+  }
 
   # NativeCall routines for P6->RB conversions
   sub p6_to_rb_int (int32 $n) returns Inline::Ruby::RbValue is native(RUBY) { * }
@@ -141,7 +164,7 @@ class Inline::Ruby::RbValue is repr('CPointer') {
     p6_to_rb_str($v);
   }
 
-
+  # Maybe not a good idea for :bleh<True> -> :bleh
   multi method from(Pair $v where $v.value === True) {
     my $rb_str = Inline::Ruby::RbValue.from($v.key);
     rb_funcall($rb_str, rb_intern("to_sym"), 0);

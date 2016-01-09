@@ -54,6 +54,50 @@ I'm running Debian unstable with ruby2.2-dev. Then:
   * Int
   * Str
 
+# Ruby::Inline::Sweet - Experimental!
+
+In addition to the above, there is an even MORE experimental module for you to
+try! Beware that it tends to segfault instead of catching and showing
+exceptions :)
+
+    use Inline::Ruby::Sweet;
+
+    # Add :rb postfix to eval a string
+    # In a string context, .to_s is called in ruby
+    # In perl6, .gist is called during printing, which wraps native-ruby values
+    # in «...»:rb
+
+    say '5':rb;      #=> «5»:rb
+
+    # If you do some basic math (+,-,*,/), they will auto-convert
+    say '5':rb + 2   #=> «7»:rb
+
+    # Do it the other way around and you'll get Perl6 values instead
+    say 2 + '5':rb   #=> 7
+
+    # Experimental native 'use'. Tries to import things
+    use csv:from<Ruby>;
+    my $data = CSV.read('examples/hiya.csv')
+    #=> «[["id", "name"], ["1", "andy"], ["2", "bella"], ["3", "chad"], ["4", "dua"]]»:rb
+
+    # That gets importing wrong sometimes, so you can do it more directly
+    # Here we'll slurp the file in Perl6, feeding the resulting string to Ruby JSON
+    ruby_require 'json', :import<JSON>
+    my $data = JSON.parse("examples/slide-up.json".IO.slurp);
+    #=> «[{"type"=>"ClutterGroup", "id"=>"actor", ... }]»:rb
+
+    # Now $data contains a ruby Array with nested hashes, wrapped in a P6 proxy
+    # object. You can call methods and some operators, such as []. Note that ruby
+    # uses [] and not {} for hash access!
+    say $data.length       #=> «2»:rb
+    say $data[0]["type"]   #=> «ClutterGroup»:rb
+
+    # The value there is still a RbObject (proxy object). You can force Str or
+    # Num context
+    say $data[0]["children"][1]["depth"]    #=> «20.0»:rb
+    say ~$data[0]["children"][1]["depth"]   #=> 20.0
+
+
 # NOTES - Brainstorming and such.
 
 * Mmm... maybe there should be two layers of .to_p6

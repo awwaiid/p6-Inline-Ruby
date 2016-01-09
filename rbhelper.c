@@ -23,3 +23,8 @@ int p6_to_rb_int(int n) {
 int p6_to_rb_str(char* s) {
   return rb_str_new2(s);
 }
+
+int p6_rb_array_length(VALUE obj) {
+  return RARRAY_LENINT(obj);
+}
+

@@ -9,9 +9,15 @@ use LibraryMake;
 #     or die "\nPlease install the Filter::Simple Perl 5 module!\n";
 
 sub ruby-cc-config {
+  shell(q{
+    ruby -rmkmf -e '
+      print RbConfig::CONFIG.inspect
+    '
+  }, :out);
   my $rb-config-cmd = shell(q{
     ruby -rmkmf -e '
-      print RbConfig::CONFIG.values_at("LIBS", "LIBRUBYARG_SHARED").join(" ")
+      print RbConfig::CONFIG["LIBS"]
+      print " " + RbConfig::CONFIG["LIBRUBYARG"]
       print " -I" + RbConfig::CONFIG["rubyhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
     '

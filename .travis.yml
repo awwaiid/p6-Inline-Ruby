@@ -8,7 +8,7 @@ perl6:
 addons:
   apt:
     packages:
-      - ruby-all-dev
+      - ruby-dev
 install:
   - rakudobrew build panda
   - panda installdeps .

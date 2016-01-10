@@ -1,7 +1,8 @@
 
 unit module Inline::Ruby::Sweet;
 
-use Inline::Ruby :ALL :EXPORT;
+use Inline::Ruby;
+# use Inline::Ruby :ALL :EXPORT;
 
 sub postfix:<:rb>($code) is export {
   use MONKEY-SEE-NO-EVAL;

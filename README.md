@@ -87,7 +87,7 @@ exceptions :)
     # That gets importing wrong sometimes, so you can do it more directly
     # Here we'll slurp the file in Perl6, feeding the resulting string to Ruby JSON
 
-    ruby_require 'json', :import<JSON>
+    BEGIN { ruby_require 'json', :import<JSON> };
     my $data = JSON.parse("examples/slide-up.json".IO.slurp);
     #=> «[{"type"=>"ClutterGroup", "id"=>"actor", ... }]»:rb
 
@@ -102,8 +102,8 @@ exceptions :)
     # The value there is still a RbObject (proxy object). You can force Str or
     # Num context
 
-    say $data[0]["children"][1]["depth"]    #=> «20.0»:rb
-    say ~$data[0]["children"][1]["depth"]   #=> 20.0
+    say $data[0]<children>[1]<depth>    #=> «20.0»:rb
+    say ~$data[0]<children>[1]<depth>   #=> 20.0
 
 
 # NOTES - Brainstorming and such.

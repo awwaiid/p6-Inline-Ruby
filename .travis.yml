@@ -5,6 +5,8 @@ language: perl6
 sudo: false
 perl6:
   - 2015.12
+rvm:
+  - ruby-2.3
 install:
   - rakudobrew build panda
   - panda installdeps .

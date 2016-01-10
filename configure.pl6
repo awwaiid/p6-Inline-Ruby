@@ -13,7 +13,7 @@ sub ruby-cc-config {
     ruby -rmkmf -e '
       print RbConfig::CONFIG.inspect
     '
-  }, :out);
+  });
   my $rb-config-cmd = shell(q{
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]

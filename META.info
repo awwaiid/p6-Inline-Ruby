@@ -3,6 +3,7 @@
     "version" : "0.1.1",
     "author" : "github:awwaiid",
     "description" : "Use Ruby code and libraries in a Perl 6 program",
+    "perl" : "v6.c",
     "depends" : [ "LibraryMake" ],
     "provides" : {
         "Inline::Ruby" : "lib/Inline/Ruby.pm6",

@@ -5,8 +5,10 @@ language: perl6
 sudo: false
 perl6:
   - 2015.12
-before_install:
-  - apt-get install -qq ruby2.2-dev
+addons:
+  apt:
+    packages:
+      - ruby-all-dev
 install:
   - rakudobrew build panda
   - panda installdeps .

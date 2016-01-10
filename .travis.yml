@@ -8,3 +8,4 @@ perl6:
 install:
   - rakudobrew build panda
   - panda installdeps .
+  - perl6 configure.pl6

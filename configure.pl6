@@ -19,7 +19,8 @@ sub ruby-cc-config {
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]
       print " -L" + RbConfig::CONFIG["libdir"]
-      print " " + RbConfig::CONFIG["LIBRUBYARG"]
+      print " " + RbConfig::CONFIG["LIBS"]
+      print " -lruby"
       print " -I" + RbConfig::CONFIG["rubyhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
     '

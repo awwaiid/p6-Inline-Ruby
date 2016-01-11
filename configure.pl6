@@ -40,6 +40,9 @@ my %vars = get-vars('.');
 mkdir "resources" unless "resources".IO.e;
 mkdir "resources/libraries" unless "resources/libraries".IO.e;
 
+say "pwd: %*ENV<PWD>";
+say "destdir: %vars<DESTDIR>";
+
 process-makefile('.', %vars);
 shell(%vars<MAKE>);
 

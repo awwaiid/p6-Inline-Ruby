@@ -27,7 +27,7 @@ sub ruby-cc-config {
 
   # For some reason travis leaves ${ORIGIN} in CONFIG
   my $rb-origin = shell('which ruby', :out).out.slurp-rest.chomp;
-  $rb-config ~~ s:g/ '${ORIGIN}' / $rb-origin /;
+  $rb-config ~~ s:g/ '${ORIGIN}' /$rb-origin/;
 
   $rb-config;
 }

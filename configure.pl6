@@ -9,12 +9,12 @@ use LibraryMake;
 #     or die "\nPlease install the Filter::Simple Perl 5 module!\n";
 
 sub ruby-cc-config {
-  shell(q{ ls -laR /home/travis/.rvm/rubies/ruby-2.3.0 });
-  shell(q{
-    ruby -rmkmf -e '
-      print RbConfig::CONFIG.inspect
-    '
-  });
+  # shell(q{ ls -laR /home/travis/.rvm/rubies/ruby-2.3.0 });
+  # shell(q{
+  #   ruby -rmkmf -e '
+  #     print RbConfig::CONFIG.inspect
+  #   '
+  # });
   my $rb-config-cmd = shell(q{
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]
@@ -23,7 +23,13 @@ sub ruby-cc-config {
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
     '
   }, :out);
-  $rb-config-cmd.out.slurp-rest;
+  my $rb-config = $rb-config-cmd.out.slurp-rest;
+
+  # For some reason travis leaves ${ORIGIN} in CONFIG
+  my $rb-origin = shell('which ruby', :out).out.slurp-rest.chomp;
+  $rb-config ~~ s:g/ '${ORIGIN}' / $rb-origin /;
+
+  $rb-config;
 }
 
 my %vars = get-vars('.');

@@ -9,6 +9,7 @@ use LibraryMake;
 #     or die "\nPlease install the Filter::Simple Perl 5 module!\n";
 
 sub ruby-cc-config {
+  shell(q{ tree /home/travis/.rvm/rubies/ruby-2.3.0 });
   shell(q{
     ruby -rmkmf -e '
       print RbConfig::CONFIG.inspect

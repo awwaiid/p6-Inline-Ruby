@@ -42,8 +42,10 @@ mkdir "resources/libraries" unless "resources/libraries".IO.e;
 
 say "pwd: %*ENV<PWD>";
 say "destdir: %vars<DESTDIR>";
+shell('ls -laR');
 
 process-makefile('.', %vars);
 shell(%vars<MAKE>);
+shell('ls -laR');
 
 # vim: ft=perl6

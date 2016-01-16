@@ -16,8 +16,8 @@ sub ruby-cc-config {
       print RbConfig::CONFIG["LIBS"]
       print " -L" + RbConfig::CONFIG["libdir"]
       print " " + RbConfig::CONFIG["LIBRUBYARG"]
-      print " -I" + RbConfig::CONFIG["rubyhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
+      print " -I" + RbConfig::CONFIG["rubyhdrdir"]
     '
   }, :out);
   my $rb-config = $rb-config-cmd.out.slurp-rest;

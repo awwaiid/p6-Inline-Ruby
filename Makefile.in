@@ -8,7 +8,7 @@ clean:
 %DESTDIR%/resources/libraries/%rbhelper%: rbhelper.c
 	# This will use pkg-config to try finding ruby
 	# looks for 2.3, 2.2, 2.1, 2.0
-	gcc -v -Wall -shared -fPIC -g \
+	gcc -v -H -Wall -shared -fPIC -g \
 		%rb-gcc-args% \
 		rbhelper.c \
 	  -o %DESTDIR%/resources/libraries/%rbhelper%

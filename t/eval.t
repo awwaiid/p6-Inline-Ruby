@@ -1,5 +1,7 @@
 #!/usr/bin/env perl6
 
+BEGIN { say "pwd: $*CWD" }
+
 use v6;
 use Test;
 use Inline::Ruby;

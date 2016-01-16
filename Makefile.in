@@ -12,8 +12,13 @@ clean:
 		%rb-gcc-args% \
 		rbhelper.c \
 	  -o %DESTDIR%/resources/libraries/%rbhelper%
+	echo pwd
+	pwd
 	ldd resources/libraries/librbhelper.so
 	nm -g resources/libraries/librbhelper.so
+	echo full path
+	ldd /home/travis/build/awwaiid/p6-Inline-Ruby/resources/libraries/librbhelper.so
+	nm -g /home/travis/build/awwaiid/p6-Inline-Ruby/resources/libraries/librbhelper.so
 
 test: all
 	prove -e 'perl6 -Ilib' t

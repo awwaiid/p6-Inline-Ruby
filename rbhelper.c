@@ -1,4 +1,4 @@
-#include "ruby.h"
+#include <ruby.h>
 
 int p6_rb_type(VALUE obj) {
   return TYPE(obj);

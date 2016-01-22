@@ -2,7 +2,7 @@ branches:
   except:
     - gh-pages
 language: perl6
-sudo: false
+sudo: true
 perl6:
   - 2015.12
 before_install:

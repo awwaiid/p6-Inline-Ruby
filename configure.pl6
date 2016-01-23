@@ -15,9 +15,10 @@ sub ruby-cc-config {
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]
       print " -L" + RbConfig::CONFIG["libdir"]
-      print " " + RbConfig::CONFIG["LIBRUBYARG"]
+      # print " " + RbConfig::CONFIG["LIBRUBYARG"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyhdrdir"]
+      print " -lruby"
     '
   }, :out);
   my $rb-config = $rb-config-cmd.out.slurp-rest;
@@ -39,10 +40,10 @@ mkdir "resources/libraries" unless "resources/libraries".IO.e;
 say "pwd: %*ENV<PWD>";
 say "destdir: %vars<DESTDIR>";
 say qx/ruby -rmkmf -e 'print RbConfig::CONFIG.inspect'/;
-shell('ls -laR');
+# shell('ls -laR');
 
 process-makefile('.', %vars);
 shell(%vars<MAKE>);
-shell('ls -laR');
+# shell('ls -laR');
 
 # vim: ft=perl6

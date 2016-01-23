@@ -37,14 +37,13 @@ our $wrap_in_rbobject = -> $val {
   # ::('Inline::Ruby')::RbObject.new( value => $val );
 };
 
-our $fishies = 7;
-
 use Inline::Ruby::RbValue;
 use Inline::Ruby::RbObject;
 
 # Native functions
 
 sub ruby_init() is native(RUBY) { * }
+sub ruby_init_loadpath() is native(RUBY) { * }
 
 sub rb_eval_string_protect(Str $code, int32 $state is rw)
     returns Inline::Ruby::RbValue
@@ -60,19 +59,19 @@ sub ruby_options(int32 $argc, CArray[Str] $argv)
 method BUILD() {
   $default_instance //= self;
   ruby_init();
+  ruby_init_loadpath();
 
   # TODO: What else do we need to do?
-  # Inline::Ruby::ruby_init_loadpath();
   # rb_gc_start();
   # rb_funcall(rb_stdout, rb_intern("sync="), 1, 1);
 
   # Setting options to -enil lets us start ruby
   # without complaint about not having some stuff.
-  my $opts = CArray[Str].new;
-  $opts[0] = "";
-  $opts[1] = "-enil";
-  my $options = ruby_options(2, $opts);
-  ruby_exec_node($options);
+  # my $opts = CArray[Str].new;
+  # $opts[0] = "";
+  # $opts[1] = "-enil";
+  # my $options = ruby_options(2, $opts);
+  # ruby_exec_node($options);
 
 }
 

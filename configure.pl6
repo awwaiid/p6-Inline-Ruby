@@ -38,7 +38,7 @@ mkdir "resources/libraries" unless "resources/libraries".IO.e;
 
 say "pwd: %*ENV<PWD>";
 say "destdir: %vars<DESTDIR>";
-say qx/ruby -rmkmf -e 'print RBConfig::CONFIG.inspect'/;
+say qx/ruby -rmkmf -e 'print RbConfig::CONFIG.inspect'/;
 shell('ls -laR');
 
 process-makefile('.', %vars);

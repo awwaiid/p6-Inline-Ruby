@@ -14,11 +14,11 @@ sub ruby-cc-config {
   my $rb-config-cmd = shell(q{
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]
+      print " -lruby"
+      print " -Wl,-rpath," + RbConfig::CONFIG["libdir"]
       print " -L" + RbConfig::CONFIG["libdir"]
-      # print " " + RbConfig::CONFIG["LIBRUBYARG"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyhdrdir"]
-      print " -lruby"
     '
   }, :out);
   my $rb-config = $rb-config-cmd.out.slurp-rest;

@@ -8,16 +8,16 @@ Inline::Ruby
     use Inline::Ruby;
 
     EVAL 'puts "Hello!"', :lang<Ruby>;
+    say EVAL('Time', :lang<Ruby>).now.to_s;
 
-    # EVAL is pretty verbose, let's make a shorthand
-    sub postfix:<:rb>($code) {
-      use MONKEY-SEE-NO-EVAL;
-      EVAL $code, :lang<Ruby>;
-    }
+    # Sweet version, some of this will be pulled into Inline::Ruby
+    # Includes more extreme or experimental features
 
-    # Method calling, some simple params
-    say 'Time':rb.now.to_s;
-    say '[2, 6, 8, 4]':rb.sort.slice(1,2).to_s;
+    use Inline::Ruby::Sweet;
+
+    # Method calling, some simple params, cast to Str
+    say ~'Time':rb.now;
+    say ~'[2, 6, 8, 4]':rb.sort.slice(1,2);
 ```
 
 # DESCRIPTION
@@ -106,8 +106,9 @@ exceptions :)
     say ~$data[0]<children>[1]<depth>   #=> 20.0
 
 
-# NOTES - Brainstorming and such.
+# NOTES/TODO - Brainstorming and such.
 
+* Nice reference https://silverhammermba.github.io/emberb/c/
 * A big trick is deciding when and how much to auto-convert between langs
   * It's nice to leave things in Ruby if they start there, so we don't have to copy it all over
   * Final values are nice to have as native Perl 6
@@ -118,6 +119,9 @@ exceptions :)
   * The simple would be called implicitly, the second explicit
 * Would be neat: RB['[1,2,3]'].each: { puts $^a }
   * Where ruby 'each' is being passed a p6-callback-block
+* Use https://doc.perl6.org/language/subscripts instead of postcircumfix
+* Write up Lang Integration Guide
+* Separate out reusable roles
 
 Imagine this:
 

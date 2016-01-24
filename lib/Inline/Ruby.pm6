@@ -59,7 +59,7 @@ sub ruby_options(int32 $argc, CArray[Str] $argv)
 method BUILD() {
   $default_instance //= self;
   ruby_init();
-  ruby_init_loadpath();
+  # ruby_init_loadpath();
 
   # TODO: What else do we need to do?
   # rb_gc_start();

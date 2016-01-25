@@ -2,7 +2,6 @@
 
 Inline::Ruby
 
-Master Build Status [![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=master)](https://travis-ci.org/awwaiid/p6-Inline-Ruby); Develop Build Status [![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=develop)](https://travis-ci.org/awwaiid/p6-Inline-Ruby)
 
 # SYNOPSIS
 
@@ -37,6 +36,10 @@ I'm running Debian unstable with ruby2.2-dev. Then:
     make test        # or prove -e 'perl6 -Ilib' -v
 
 # STATUS
+
+Master (released) branch [![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=master)](https://travis-ci.org/awwaiid/p6-Inline-Ruby)
+
+Develop branch [![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=develop)](https://travis-ci.org/awwaiid/p6-Inline-Ruby)
 
 * This only barely works!
   * Lots of missing features

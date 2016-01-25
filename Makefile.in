@@ -8,17 +8,10 @@ clean:
 %DESTDIR%/resources/libraries/%rbhelper%: rbhelper.c
 	# This will use pkg-config to try finding ruby
 	# looks for 2.3, 2.2, 2.1, 2.0
-	gcc -v -H -Wl,-v -Wall -shared -fPIC -g \
+	gcc -Wall -shared -fPIC -g \
 		rbhelper.c \
 		%rb-gcc-args% \
 		-o %DESTDIR%/resources/libraries/%rbhelper%
-	echo pwd
-	pwd
-	ldd resources/libraries/librbhelper.so
-	nm -g resources/libraries/librbhelper.so
-	echo full path
-	ldd /home/travis/build/awwaiid/p6-Inline-Ruby/resources/libraries/librbhelper.so
-	nm -g /home/travis/build/awwaiid/p6-Inline-Ruby/resources/libraries/librbhelper.so
 
 test: all
 	prove -e 'perl6 -Ilib' t

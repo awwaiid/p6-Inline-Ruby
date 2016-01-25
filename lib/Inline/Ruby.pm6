@@ -32,6 +32,8 @@ my $default_instance;
 use NativeCall;
 constant RUBY = %?RESOURCES<libraries/rbhelper>.Str;
 
+# say "Ruby: " ~ RUBY;
+
 our $wrap_in_rbobject = -> $val {
   ::('Inline::Ruby::RbObject').new( value => $val );
   # ::('Inline::Ruby')::RbObject.new( value => $val );
@@ -44,6 +46,8 @@ use Inline::Ruby::RbObject;
 
 sub ruby_init() is native(RUBY) { * }
 sub ruby_init_loadpath() is native(RUBY) { * }
+sub protect_ruby_init_loadpath() returns int32 is native(RUBY) { * }
+# sub rb_protect(Pointer, Inline::Ruby::RbValue, int32 $state is rw) is native(RUBY) { * }
 
 sub rb_eval_string_protect(Str $code, int32 $state is rw)
     returns Inline::Ruby::RbValue
@@ -57,9 +61,17 @@ sub ruby_options(int32 $argc, CArray[Str] $argv)
     is native(RUBY) { * }
 
 method BUILD() {
+#   say "Ruby lib: " ~ RUBY;
   $default_instance //= self;
   ruby_init();
-  ruby_init_loadpath();
+  
+  say "Ruby init loadpath...";
+  my $state = protect_ruby_init_loadpath();
+  say "Load init state: $state";
+  # ruby_init_loadpath();
+  # my int32 $state = 0;
+  # rb_eval_string_protect('puts "Hello from Ruby"', $state);
+  # exit;
 
   # TODO: What else do we need to do?
   # rb_gc_start();

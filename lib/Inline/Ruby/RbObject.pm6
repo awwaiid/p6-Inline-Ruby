@@ -23,7 +23,7 @@ class Inline::Ruby::RbObject {
   method List()    { $.value.List() }
   method Array()   { $.value.Array() }
 
-  sub rb_funcallv(
+  sub p6_rb_funcallv(
         Inline::Ruby::RbValue $obj,
         Inline::Ruby::RbValue $symbol,
         int32 $argc,
@@ -48,7 +48,7 @@ class Inline::Ruby::RbObject {
     my $argv = CArray[Inline::Ruby::RbValue].new;
     $argv[$_] = Inline::Ruby::RbValue.from(@args[$_]) for ^@args.elems;
     Inline::Ruby::RbObject.from(
-      rb_funcallv($.value, rb_intern($method_name), $argc, $argv)
+      p6_rb_funcallv($.value, rb_intern($method_name), $argc, $argv)
     );
   }
 

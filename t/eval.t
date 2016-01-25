@@ -1,15 +1,8 @@
 #!/usr/bin/env perl6
 
-BEGIN { say "pwd: $*CWD" }
-BEGIN {
-	shell('ldd resources/libraries/librbhelper.so');
-	shell('nm -g resources/libraries/librbhelper.so');
-}
-
 use v6;
 use Test;
 use Inline::Ruby;
-
 
 sub postfix:<:rb>($code) {
   use MONKEY-SEE-NO-EVAL;

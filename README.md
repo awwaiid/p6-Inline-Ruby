@@ -2,6 +2,10 @@
 
 Inline::Ruby
 
+Master:[![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=master)](https://travis-ci.org/awwaiid/p6-Inline-Ruby)
+
+Develop:[![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg?branch=develop)](https://travis-ci.org/awwaiid/p6-Inline-Ruby)
+
 # SYNOPSIS
 
 ```

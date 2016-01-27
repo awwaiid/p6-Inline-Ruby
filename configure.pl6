@@ -23,10 +23,6 @@ sub ruby-cc-config {
   }, :out);
   my $rb-config = $rb-config-cmd.out.slurp-rest;
 
-  # For some reason travis leaves ${ORIGIN} in CONFIG
-  #my $rb-origin = shell('dirname `which ruby`', :out).out.slurp-rest.chomp;
-  #$rb-config ~~ s:g/ '${ORIGIN}' /$rb-origin/;
-
   $rb-config;
 }
 
@@ -36,11 +32,6 @@ my %vars = get-vars('.');
 
 mkdir "resources" unless "resources".IO.e;
 mkdir "resources/libraries" unless "resources/libraries".IO.e;
-
-say "pwd: %*ENV<PWD>";
-say "destdir: %vars<DESTDIR>";
-say qx/ruby -rmkmf -e 'print RbConfig::CONFIG.inspect'/;
-# shell('ls -laR');
 
 process-makefile('.', %vars);
 shell(%vars<MAKE>);

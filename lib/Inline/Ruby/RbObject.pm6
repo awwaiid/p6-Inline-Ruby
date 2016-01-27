@@ -62,11 +62,9 @@ class Inline::Ruby::RbObject {
     ) returns Inline::Ruby::RbValue {
       my @args;
       for ^$argc -> $n {
-        @args[$n] = $argv[$n];
+        @args[$n] = Inline::Ruby::RbObject.from($argv[$n]);
       }
       Inline::Ruby::RbValue.from(&f(|@args));
-      # return Inline::Ruby::RbValue.from(0);
-      # &f();
     };
   }
 
@@ -95,7 +93,11 @@ class Inline::Ruby::RbObject {
   #| Build a new Ruby Object from a Perl 6 value, first wrapping it
   #| as an Inline::Ruby::RbValue
   method from($p6_value) {
-    Inline::Ruby::RbObject.new( value => Inline::Ruby::RbValue.from($p6_value) );
+    if $p6_value ~~ Inline::Ruby::RbObject {
+      $p6_value;
+    } else {
+      Inline::Ruby::RbObject.new( value => Inline::Ruby::RbValue.from($p6_value) );
+    }
   }
 
 }

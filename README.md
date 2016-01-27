@@ -110,6 +110,15 @@ exceptions :)
     say $data[0]<children>[1]<depth>    #=> «20.0»:rb
     say ~$data[0]<children>[1]<depth>   #=> 20.0
 
+    # Can call methods with blocks!
+
+    "[1,2,3]":rb.map: -> $n { 1 + $n }         #=> «2, 3, 4»:rb
+
+    use csv:from<Ruby>;
+    CSV.foreach: 'customers.csv', -> $row {
+      say $row[2];
+    }
+
 
 # NOTES/TODO - Brainstorming and such.
 
@@ -130,11 +139,6 @@ exceptions :)
 
 Imagine this:
 
-    use csv:from<Ruby>;
-
-    CSV.foreach: 'customers.csv', -> $row {
-      say $row[2];
-    }
 
 # LICENSE
 

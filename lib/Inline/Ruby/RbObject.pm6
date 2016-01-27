@@ -16,6 +16,7 @@ class Inline::Ruby::RbObject {
   method first(*@x) { self.FALLBACK("first", |@x); }
   method push(*@x)  { self.FALLBACK("push",  |@x); }
   method join(*@x)  { self.FALLBACK("join",  |@x); }
+  method map(*@x)   { self.FALLBACK("map",  |@x); }
 
   method Str()     { $.value.Str() }
   method Numeric() { $.value.Numeric() }
@@ -36,6 +37,39 @@ class Inline::Ruby::RbObject {
       returns Inline::Ruby::RbValue
       is native(RUBY) { * }
 
+  # VALUE rb_block_call(VALUE,ID,int,const VALUE*,rb_block_call_func_t,VALUE);
+  sub rb_block_call(
+        Inline::Ruby::RbValue $obj,
+        Inline::Ruby::RbValue $symbol,
+        int32 $argc,
+        CArray[Inline::Ruby::RbValue] $argv,
+        &block (
+          Inline::Ruby::RbValue $block_arg,
+          Inline::Ruby::RbValue $block_data,
+          int32 $block_argc,
+          CArray[Inline::Ruby::RbValue] $block_argv
+          --> Inline::Ruby::RbValue),
+        int32 $data)
+      returns Inline::Ruby::RbValue
+      is native(RUBY) { * }
+
+  sub mk_rb_block(&f) {
+    sub (
+      Inline::Ruby::RbValue $block_arg,
+      Inline::Ruby::RbValue $data,
+      int32 $argc,
+      CArray[Inline::Ruby::RbValue] $argv
+    ) returns Inline::Ruby::RbValue {
+      my @args;
+      for ^$argc -> $n {
+        @args[$n] = $argv[$n];
+      }
+      Inline::Ruby::RbValue.from(&f(|@args));
+      # return Inline::Ruby::RbValue.from(0);
+      # &f();
+    };
+  }
+
   #| Most methods can be called directly on the Ruby VALUE
   method FALLBACK($method_name, +@args) {
     # I'd rather do this, but it doesn't work; first there is a compile-time
@@ -44,12 +78,18 @@ class Inline::Ruby::RbObject {
     # return $.value.invoke-method($method_name, @args).to_p6;
 
     # say "Calling $method_name with arguments: @args[]";
+    my &block = @args.pop if @args[*-1] ~~ Callable;
     my $argc = @args.elems;
     my $argv = CArray[Inline::Ruby::RbValue].new;
     $argv[$_] = Inline::Ruby::RbValue.from(@args[$_]) for ^@args.elems;
-    Inline::Ruby::RbObject.from(
-      p6_rb_funcallv($.value, rb_intern($method_name), $argc, $argv)
-    );
+    my $result;
+    if &block {
+      my &rb_block = mk_rb_block(&block);
+      $result = rb_block_call($.value, rb_intern($method_name), $argc, $argv, &rb_block, 0);
+    } else {
+      $result = p6_rb_funcallv($.value, rb_intern($method_name), $argc, $argv);
+    }
+    Inline::Ruby::RbObject.from($result);
   }
 
   #| Build a new Ruby Object from a Perl 6 value, first wrapping it

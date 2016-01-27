@@ -170,8 +170,12 @@ class Inline::Ruby::RbValue is repr('CPointer') {
     rb_funcall($rb_str, rb_intern("to_sym"), 0);
   }
 
+  # VALUE rb_proc_new(VALUE (*)(ANYARGS/* VALUE yieldarg[, VALUE procarg] */), VALUE);
+  # sub p6_to_rb_proc (Inline::Ruby::RbValue, Inline::Ruby::RbValue) returns Inline::Ruby::RbValue;
+
+
   multi method from($v) {
-    say "Can't convert $v, passing on";
+    say "Can't convert {$v.gist}, passing on";
     $v;
   }
 

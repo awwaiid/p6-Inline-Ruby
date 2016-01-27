@@ -29,5 +29,11 @@ is $data.length.gist, '«2»:rb', 'Method invocation';
 is $data[0]["type"].gist, '«ClutterGroup»:rb', 'Array method index';
 is $data[0]<type>.gist, '«ClutterGroup»:rb', 'Hash method index alias';
 
+my $list = "[1,2,3]":rb;
+
+$list.each: -> $n {
+  say "I got $n";
+};
+
 done-testing;
 

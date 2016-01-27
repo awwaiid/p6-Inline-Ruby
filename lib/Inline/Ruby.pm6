@@ -65,10 +65,10 @@ method BUILD() {
   $default_instance //= self;
   ruby_init();
   
-  say "Ruby init loadpath...";
-  my $state = protect_ruby_init_loadpath();
-  say "Load init state: $state";
-  # ruby_init_loadpath();
+  # say "Ruby init loadpath...";
+  # my $state = protect_ruby_init_loadpath();
+  # say "Load init state: $state";
+  ruby_init_loadpath();
   # my int32 $state = 0;
   # rb_eval_string_protect('puts "Hello from Ruby"', $state);
   # exit;

@@ -52,55 +52,50 @@ class Inline::Ruby::RbValue is repr('CPointer') {
 
 
   # NativeCall routines for rb->p6 conversions
-  sub p6_rb_type      (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
-  sub rb_to_p6_fixnum (Inline::Ruby::RbValue $value) returns int   is native(RUBY) { * }
+  sub p6_rb_type      (Inline::Ruby::RbValue $value) returns int32 is native(RUBY) { * }
+  sub rb_to_p6_fixnum (Inline::Ruby::RbValue $value) returns int32 is native(RUBY) { * }
   sub rb_to_p6_string (Inline::Ruby::RbValue $value) returns Str   is native(RUBY) { * }
   sub rb_to_p6_dbl    (Inline::Ruby::RbValue $value) returns num64 is native(RUBY) { * }
 
   # Array helpers
   sub p6_rb_array_length (Inline::Ruby::RbValue $value)
-      returns int
+      returns int32
       is native(RUBY) { * }
-  sub rb_ary_entry       (Inline::Ruby::RbValue $value, int $offset)
+  sub rb_ary_entry       (Inline::Ruby::RbValue $value, int32 $offset)
       returns Inline::Ruby::RbValue
       is native(RUBY) { * }
 
-  # method to_p6() {
-  #  self.to_p6(p6_rb_type(self))
-  # }
+  multi method TO-P6() {
+    self.TO-P6(p6_rb_type(self))
+  }
 
-  # multi method to_p6($type where RUBY_T_FIXNUM) {
-  #   rb_to_p6_fixnum(self);
-  # }
+  multi method TO-P6($type where RUBY_T_FIXNUM) {
+    self.Numeric
+  }
 
-  # multi method to_p6($type where RUBY_T_TRUE) {
-  #   True;
-  # }
+  multi method TO-P6($type where RUBY_T_TRUE) {
+    self.Bool
+  }
 
-  # multi method to_p6($type where RUBY_T_FALSE) {
-  #   False;
-  # }
+  multi method TO-P6($type where RUBY_T_FALSE) {
+    self.Bool
+  }
 
-  # multi method to_p6($type where RUBY_T_NIL) {
-  #   Any;
-  # }
+  multi method TO-P6($type where RUBY_T_NIL) {
+    Any;
+  }
 
-  # multi method to_p6($type where RUBY_T_STRING) {
-  #   rb_to_p6_string(self);
-  # }
+  multi method TO-P6($type where RUBY_T_STRING) {
+    self.Str
+  }
 
-  # multi method to_p6($type where RUBY_T_FLOAT) {
-  #   rb_to_p6_dbl(self);
-  # }
-  #
-  # multi method to_p6($type where RUBY_T_STRING) {
-  #   rb_to_p6_string(self);
-  # }
-  #
-  # multi method to_p6($type) {
-  #   ::('Inline::Ruby::RbObject').new(value => self);
-  # }
+  multi method TO-P6($type where RUBY_T_FLOAT) {
+    self.Numeric
+  }
 
+  multi method TO-P6($type where RUBY_T_ARRAY) {
+    self.List.map(*.TO-P6).list;
+  }
 
   method Str() {
     if p6_rb_type(self) ~~ RUBY_T_STRING {

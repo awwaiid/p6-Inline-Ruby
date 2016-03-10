@@ -58,13 +58,39 @@ role RubyPackage[Str $module] {
     }
 }
 
+sub ruby_import ($module) is export {
+  # Skip already existing classes
+  if ::("$module") !~~ Failure {
+    $*ERR.say: "P6→RB WARNING: NOT creating proxy for class «$module»:rb (class already defined)";
+    next;
+  }
+
+  # say "Creating proxy for class «$module»:rb";
+  my $class := Metamodel::ClassHOW.new_type( name => $module );
+  $class.^add_role(RubyPackage[$module]);
+
+  $class.^compose;
+
+  # register the new class by its name
+  my @parts = $module.split('::');
+  my $inner = @parts.pop;
+  my $ns := ::GLOBAL.WHO;
+  for @parts {
+      $ns{$_} := Metamodel::PackageHOW.new_type(name => $_) unless $ns{$_}:exists;
+      $ns := $ns{$_}.WHO;
+  }
+  my @existing = $ns{$inner}.WHO.pairs;
+  $ns{$inner} := $class;
+  $class.WHO{$_.key} := $_.value for @existing;
+}
+
 sub ruby_require ($name, :$import is copy) is export {
   # say "Requiring ruby module $name";
   q:to/RUBYCODE/:rb;
     $created_class = []
     class Object
       def self.inherited(new_class)
-        puts "Created: #{new_class}"
+        # puts "Created: #{new_class}"
         $created_class << new_class
       end
     end
@@ -81,33 +107,9 @@ sub ruby_require ($name, :$import is copy) is export {
   RUBYCODE
 
   $import //= '$created_class':rb.List.map: { .Str };
-  # say "Import: $import";
 
   for |$import -> $module {
-
-    # Skip already existing classes
-    if ::("$module") !~~ Failure {
-      say "NOT creating proxy for class «$module»:rb (class already defined)";
-      next;
-    }
-
-    # say "Creating proxy for class «$module»:rb";
-    my $class := Metamodel::ClassHOW.new_type( name => $module );
-    $class.^add_role(RubyPackage[$module]);
-
-    $class.^compose;
-
-    # register the new class by its name
-    my @parts = $module.split('::');
-    my $inner = @parts.pop;
-    my $ns := ::GLOBAL.WHO;
-    for @parts {
-        $ns{$_} := Metamodel::PackageHOW.new_type(name => $_) unless $ns{$_}:exists;
-        $ns := $ns{$_}.WHO;
-    }
-    my @existing = $ns{$inner}.WHO.pairs;
-    $ns{$inner} := $class;
-    $class.WHO{$_.key} := $_.value for @existing;
+    ruby_import($module);
   }
 
 }

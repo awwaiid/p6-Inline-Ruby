@@ -1,6 +1,10 @@
 #include <ruby.h>
 #include <stdio.h>
 
+/* Mostly these are just a way to deal with macros, wrapping them into a
+ * function. They should probably be marked as 'inline' somehow to be more
+ * better */
+
 int p6_rb_type(VALUE obj) {
   return TYPE(obj);
 }
@@ -33,19 +37,3 @@ VALUE p6_rb_funcallv(VALUE obj, ID method, int argc, const VALUE* argv) {
   return rb_funcall2(obj, method, argc, argv);
 }
 
-VALUE protected_init_loadpath(VALUE obj) {
-  printf("calling ruby_init_loadpath\n");
-  ruby_init_loadpath();
-  printf("back from calling ruby_init_loadpath\n");
-  return Qnil;
-}
-
-int protect_ruby_init_loadpath() {
-  // ruby_init_loadpath();
-  VALUE result;
-  int state;
-  printf("calling rbprotect protected_init_loadpath\n");
-  result = rb_protect(protected_init_loadpath, Qnil, &state);
-  printf("back from calling rbprotect protected_init_loadpath\n");
-  return state;
-}

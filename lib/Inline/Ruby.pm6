@@ -44,10 +44,11 @@ use Inline::Ruby::RbObject;
 
 # Native functions
 
-sub ruby_init() is native(RUBY) { * }
+sub ruby_init()          is native(RUBY) { * }
 sub ruby_init_loadpath() is native(RUBY) { * }
-sub protect_ruby_init_loadpath() returns int32 is native(RUBY) { * }
-# sub rb_protect(Pointer, Inline::Ruby::RbValue, int32 $state is rw) is native(RUBY) { * }
+sub rb_gc_start()        is native(RUBY) { * }
+
+sub ruby_script(Str $name) is native(RUBY) { * }
 
 sub rb_eval_string_protect(Str $code, int32 $state is rw)
     returns Inline::Ruby::RbValue
@@ -64,17 +65,13 @@ method BUILD() {
 #   say "Ruby lib: " ~ RUBY;
   $default_instance //= self;
   ruby_init();
-  
-  # say "Ruby init loadpath...";
-  # my $state = protect_ruby_init_loadpath();
-  # say "Load init state: $state";
+
   ruby_init_loadpath();
-  # my int32 $state = 0;
-  # rb_eval_string_protect('puts "Hello from Ruby"', $state);
-  # exit;
+  ruby_script('rakudo');
+
+  rb_gc_start(); # I have no idea if this works
 
   # TODO: What else do we need to do?
-  # rb_gc_start();
   # rb_funcall(rb_stdout, rb_intern("sync="), 1, 1);
 
   # Setting options to -enil lets us start ruby

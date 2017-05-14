@@ -1,5 +1,6 @@
 {
     "name" : "Inline::Ruby",
+    "license" : "Artistic-2.0",
     "version" : "0.4.0",
     "author" : "github:awwaiid",
     "description" : "Use Ruby code and libraries in a Perl 6 program",

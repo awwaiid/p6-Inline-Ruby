@@ -7,7 +7,7 @@ perl6:
   - latest
   - 2017.07
 before_install:
-  - rvm install ruby-2.4
+  - rvm install ruby-2.4.1
 install:
   - rakudobrew build zef
   - zef  --deps-only .

@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-use Inline::Ruby::Sweet;
+use Inline::Ruby;
 
 is '[1, 2, 3]':rb.TO-P6.WHAT, List, 'rb array -> List';
 is-deeply '[1, 2, 3]':rb.TO-P6, (1, 2, 3), 'Simple array';

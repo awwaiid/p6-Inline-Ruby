@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-use Inline::Ruby::Sweet;
+use Inline::Ruby;
 
 subtest {
   isa-ok !!'true':rb, True;

@@ -11,14 +11,23 @@ Inline::Ruby
     EVAL 'puts "Hello!"', :lang<Ruby>;
     say EVAL('Time', :lang<Ruby>).now.to_s;
 
-    # Sweet version, some of this will be pulled into Inline::Ruby
-    # Includes more extreme or experimental features
-
-    use Inline::Ruby::Sweet;
-
     # Method calling, some simple params, cast to Str
     say ~'Time':rb.now;
     say ~'[2, 6, 8, 4]':rb.sort.slice(1,2);
+
+    # More advanced, this is Ruby's map and each_with_index
+    # This shows the :rb postfix-operator sugar instead of EVAL
+    "[1,2,3,4]":rb
+      .map(-> $n { +$n + 1 })
+      .each_with_index: -> $n, $i { say "$n @ $i" }
+
+    # Import and wrap ruby classes
+    use csv:from<Ruby>;
+
+    CSV.foreach: 'examples/hiya.csv', -> $row {
+      say "   Raw row: {$row.gist}";
+      say "Name field: $row[1]";
+    }
 ```
 
 # DESCRIPTION
@@ -27,10 +36,9 @@ Module for executing Ruby code and accessing Ruby libraries from Perl 6.
 
 # BUILD / DEV
 
-In theory you can get it from panda. Let me know if that's
-true :)
+In theory you can get it from zef. Let me know if that's true :)
 
-I'm running Debian unstable with ruby2.2-dev. Then:
+I'm running Ubuntu with ruby2.3-dev installed from apt. Then:
 
     ./configure.pl6  # Creates Makefile and runs make
     make test        # or prove -e 'perl6 -Ilib' -v
@@ -59,15 +67,9 @@ Develop branch [![Build Status](https://travis-ci.org/awwaiid/p6-Inline-Ruby.svg
   * Int
   * Str
 
-# Ruby::Inline::Sweet - Experimental!
+More examples:
 
-In addition to the above, there is an even MORE experimental module for you to
-try! Beware that it tends to segfault instead of catching and showing
-exceptions :)
-
-    use Inline::Ruby::Sweet;
-
-    # Add :rb postfix to eval a string
+    # Use the :rb postfix to eval a string
     # In a string context, .to_s is called in ruby
     # In perl6, .gist is called during printing, which wraps native-ruby values
     # in «...»:rb. So when you see that, you know you are looking at a wrapped
@@ -131,14 +133,8 @@ exceptions :)
   * One would do simple types -- strings, numbers
   * Second would do complex types -- Array, Hash
   * The simple would be called implicitly, the second explicit
-* Would be neat: RB['[1,2,3]'].each: { puts $^a }
-  * Where ruby 'each' is being passed a p6-callback-block
-* Use https://doc.perl6.org/language/subscripts instead of postcircumfix
 * Write up Lang Integration Guide
 * Separate out reusable roles
-
-Imagine this:
-
 
 # LICENSE
 

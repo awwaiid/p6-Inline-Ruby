@@ -28,13 +28,17 @@ class Inline::Ruby::RbObject {
   # Manually automatically convert deeply
   method TO-P6()   { $.value.TO-P6 }
 
+  method gist() {
+    "«{ $.value }»:rb"
+  }
+
   sub p6_rb_funcallv(
-        Inline::Ruby::RbValue $obj,
-        Inline::Ruby::RbValue $symbol,
-        int32 $argc,
-        CArray[Inline::Ruby::RbValue] $argv)
-      returns Inline::Ruby::RbValue
-      is native(RUBY) { * }
+      Inline::Ruby::RbValue $obj,
+      Inline::Ruby::RbValue $symbol,
+      int32 $argc,
+      CArray[Inline::Ruby::RbValue] $argv)
+    returns Inline::Ruby::RbValue
+    is native(RUBY) { * }
 
   # string -> symbol
   sub rb_intern(Str $val)
@@ -106,4 +110,3 @@ class Inline::Ruby::RbObject {
   }
 
 }
-

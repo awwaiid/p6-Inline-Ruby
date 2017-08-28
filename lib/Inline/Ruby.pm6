@@ -32,15 +32,20 @@ my $default_instance;
 use NativeCall;
 constant RUBY = %?RESOURCES<libraries/rbhelper>.Str;
 
-# say "Ruby: " ~ RUBY;
+use MONKEY-SEE-NO-EVAL;
 
-our $wrap_in_rbobject = -> $val {
-  ::('Inline::Ruby::RbObject').new( value => $val );
-  # ::('Inline::Ruby')::RbObject.new( value => $val );
-};
+# our $wrap_in_rbobject = -> $val {
+#   ::('Inline::Ruby::RbObject').new( value => $val );
+# };
 
 use Inline::Ruby::RbValue;
 use Inline::Ruby::RbObject;
+
+# my package EXPORT::DEFAULT { } # initialise the export namespace
+# BEGIN for <& &bar &baz> { # iterate over the things you want to
+# re-export by default
+#         EXPORT::DEFAULT::{$_} = ::($_)
+#       }
 
 # Native functions
 
@@ -109,7 +114,153 @@ multi sub EVAL(
   Inline::Ruby::RbObject.from( $rb.run($code) );
 }
 
+role RubyPackage[Str $module] {
+    # has $!parent;
 
+    method new(*@args, *%args) {
+      self.FALLBACK('new');
+    }
+
+    method FALLBACK($name, *@args) {
+      # say "Calling $module method $name args @args[]";
+      EVAL("$module", :lang<Ruby>)."$name"(|@args);
+    }
+}
+
+sub ruby_import ($module) is export {
+  # Skip already existing classes
+  if ::("$module") !~~ Failure {
+    $*ERR.say: "P6→RB WARNING: NOT creating proxy for class «$module»:rb (class already defined)";
+    next;
+  }
+
+  # say "Creating proxy for class «$module»:rb";
+  my $class := Metamodel::ClassHOW.new_type( name => $module );
+  $class.^add_role(RubyPackage[$module]);
+
+  $class.^compose;
+
+  # register the new class by its name
+  my @parts = $module.split('::');
+  my $inner = @parts.pop;
+  my $ns := ::GLOBAL.WHO;
+  for @parts {
+      $ns{$_} := Metamodel::PackageHOW.new_type(name => $_) unless $ns{$_}:exists;
+      $ns := $ns{$_}.WHO;
+  }
+  my @existing = $ns{$inner}.WHO.pairs;
+  $ns{$inner} := $class;
+  $class.WHO{$_.key} := $_.value for @existing;
+}
+
+our sub ruby_require ($name, :$import is copy) is export {
+  # say "Requiring ruby module $name";
+  EVAL(q:to/RUBYCODE/, :lang<Ruby>);
+    $created_class = []
+    class Object
+      def self.inherited(new_class)
+        # puts "Created: #{new_class}"
+        $created_class << new_class
+      end
+    end
+  RUBYCODE
+
+  EVAL "require '$name'", :lang<Ruby>;
+
+  # TODO: Really we should back up and restore whatever was there
+  EVAL(q:to/RUBYCODE/, :lang<Ruby>);
+    class Object
+      def self.inherited(new_class)
+      end
+    end
+  RUBYCODE
+
+  $import //= EVAL('$created_class', :lang<Ruby>).List.map: { .Str };
+
+  for |$import -> $module {
+    ruby_import($module);
+  }
+
+}
+
+class ::CompUnit::Repository::Ruby does CompUnit::Repository {
+
+  my $prev-repo = $*REPO.repo-chain[*-1];
+  $prev-repo.next-repo = CompUnit::Repository::Ruby.new;
+
+  method id() {
+      'ruby'
+  }
+
+  method need(CompUnit::DependencySpecification $spec, CompUnit::PrecompilationRepository $precomp) {
+      # say "need {$spec.short-name} from {$spec.from}";
+      if $spec.from eq 'Ruby' {
+        # say "Loading a ruby lib... {$spec.perl}";
+        # say "Loading a ruby lib...";
+        Inline::Ruby::ruby_require($spec.short-name);
+
+        return CompUnit.new(
+          short-name => $spec.short-name,
+          handle     => CompUnit::Handle.from-unit(::($spec.short-name).WHO),
+          repo       => self,
+          repo-id    => $spec.short-name,
+          from       => $spec.from,
+        );
+
+      } else {
+        $prev-repo.next-repo = CompUnit::Repository;
+        LEAVE {
+            $prev-repo.next-repo = self;
+        }
+        $*REPO.need($spec)
+      }
+  }
+
+  method loaded() {
+      []
+  }
+
+  method path-spec() {
+      'ruby#'
+  }
+}
+
+# TODO: Get all of these multi-subs to live in RbObject and re-export
+
+multi sub infix:<+>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."+"($right-obj);
+}
+
+multi sub infix:<->(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."-"($right-obj);
+}
+
+multi sub infix:<*>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."*"($right-obj);
+}
+
+multi sub infix:</>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."/"($right-obj);
+}
+
+multi sub infix:<%>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."%"($right-obj);
+}
+
+multi sub postcircumfix:<[ ]>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."[]"($right-obj);
+}
+
+# Ruby doesn't really differentiate between [] and {}, so we'll sugar it
+multi sub postcircumfix:<{ }>(Inline::Ruby::RbObject $left-obj, Any $right-obj) is export {
+  $left-obj."[]"($right-obj);
+}
+
+# Sugary delicousness for running inline ruby code
+sub postfix:<:rb>($code) is export {
+  use MONKEY-SEE-NO-EVAL;
+  EVAL $code, :lang<Ruby>;
+}
 
 
 =AUTHOR Brock Wilcox <awwaiid@thelackthereof.org>

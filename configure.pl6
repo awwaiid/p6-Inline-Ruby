@@ -5,23 +5,18 @@ use LibraryMake;
 
 #| Call out to Ruby to figure out what compile flags we should use
 sub ruby-cc-config {
-  # shell(q{ ls -laR /home/travis/.rvm/rubies/ruby-2.3.0 });
-  # shell(q{
-  #   ruby -rmkmf -e '
-  #     print RbConfig::CONFIG.inspect
-  #   '
-  # });
   my $rb-config-cmd = shell(q{
     ruby -rmkmf -e '
       print RbConfig::CONFIG["LIBS"]
-      print " -lruby"
-      print " -Wl,-rpath," + RbConfig::CONFIG["libdir"]
+      print " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]
+      print " -Wl,-rpath," + RbConfig::CONFIG["archlibdir"]
       print " -L" + RbConfig::CONFIG["libdir"]
+      print " -L" + RbConfig::CONFIG["archlibdir"]
       print " -I" + RbConfig::CONFIG["rubyarchhdrdir"]
       print " -I" + RbConfig::CONFIG["rubyhdrdir"]
     '
   }, :out);
-  my $rb-config = $rb-config-cmd.out.slurp-rest;
+  my $rb-config = $rb-config-cmd.out.slurp;
 
   $rb-config;
 }

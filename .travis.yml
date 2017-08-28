@@ -4,10 +4,11 @@ branches:
 language: perl6
 sudo: false
 perl6:
-  - 2015.12
+  - latest
+  - 2017.07
 before_install:
-  - rvm install ruby-2.2
+  - rvm install ruby-2.4
 install:
-  - rakudobrew build panda
-  - panda installdeps .
+  - rakudobrew build zef
+  - zef  --deps-only .
   - perl6 configure.pl6

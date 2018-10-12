@@ -10,5 +10,4 @@ before_install:
   - rvm install ruby-2.4.1
 install:
   - rakudobrew build zef
-  - zef install --deps-only .
-  - perl6 configure.pl6
+  - zef install .

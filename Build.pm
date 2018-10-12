@@ -18,7 +18,7 @@ class Build {
       '
     }, :out);
     my $rb-config = $rb-config-cmd.out.slurp;
-
+    note $rb-config;
     $rb-config;
   }
 
